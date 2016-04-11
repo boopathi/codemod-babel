@@ -9,8 +9,14 @@ export default function babelPluginRequireToImport(babel) {
 
   const requireVisitor = {
     CallExpression(path) {
-      if (path.node.callee.name !== "require") return;
+      if (!t.isIdentifier(path.node.callee)) return;
+      if (path.node.callee.name !== 'require') return;
       if (!t.isStringLiteral(path.node.arguments[0])) return;
+
+      if (path.scope.parent !== null)
+        throw new Error(
+          `Requires must be top level. "${path.node.arguments[0].value}" is not required in the top-level`
+        );
 
       const value = path.node.arguments[0].value;
 
