@@ -27,7 +27,7 @@ test('Test Suite', function(t) {
     ])
     .map(([filename, out]) => [filename, out.code])
     .map(([filename, code]) => {
-      t.equal(code.toString().trim(), getExpected(filename).trim(), filename); 
+      t.equal(code.toString().trim(), getExpected(filename).trim(), filename);
     });
   t.end();
 });

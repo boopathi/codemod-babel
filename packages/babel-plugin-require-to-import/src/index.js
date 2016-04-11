@@ -6,20 +6,20 @@ function getIdentifierFromLiteral(name) {
 
 export default function babelPluginRequireToImport(babel) {
   const t = babel.types;
-  
+
   const requireVisitor = {
     CallExpression(path) {
       if (path.node.callee.name !== "require") return;
       if (!t.isStringLiteral(path.node.arguments[0])) return;
-      
+
       const value = path.node.arguments[0].value;
-      
+
       if (t.isVariableDeclarator(path.parentPath.node)) {
         const id = path.parentPath.node.id.name;
         this.imports.push({id, value});
         return path.parentPath.remove();
       }
-      
+
       // a CallExpression will have second ancestor as program
       // even if declared in the highest scope
       // Program -> body(ExpressionStatement) -> CallExpression
@@ -47,7 +47,7 @@ export default function babelPluginRequireToImport(babel) {
       let state = {
         imports: []
       };
-      
+
       path.traverse(requireVisitor, state);
 
       let importDecls = [];
@@ -65,7 +65,7 @@ export default function babelPluginRequireToImport(babel) {
 
     }
   }
-  
+
   return {
     visitor: bodyVisitor
   };
