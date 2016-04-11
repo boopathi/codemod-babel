@@ -21,3 +21,7 @@ To be used in command line for code mod. Not to be used during runtime.
 
 + Input: [actual.js](./tests/resources/require-to-import.js)
 + Output: [expected.js](./tests/resources/require-to-import.expected.js)
+
+## LICENSE
+
+http://boopathi.mit-license.org
