@@ -2,12 +2,20 @@ export default function (babel) {
   const t = babel.types;
 
   const moduleExportsVisitor = {
-    AssignmentExpression(path) {
+    ExpressionStatement(statementPath) {
+      const path = statementPath.get('expression');
+
+      if (!path.isAssignmentExpression()) return;
       if (!t.isMemberExpression(path.node.left)) return;
       if (!t.isIdentifier(path.node.left.object)) return;
       if (!t.isIdentifier(path.node.left.property)) return;
       if (path.node.left.object.name !== 'module') return;
       if (path.node.left.property.name !== 'exports') return;
+
+      if (path.scope.parent !== null)
+        throw new Error(
+          `module.exports is allowed only in the top level. Line ${path.node.right.loc.start.line}, Column ${path.node.right.loc.start.column} is not a top-level export`
+        );
 
       const {right} = path.node;
       if (t.isIdentifier(right)) {
@@ -18,10 +26,10 @@ export default function (babel) {
           binding.path.replaceWith(t.exportDefaultDeclaration(binding.path.node));
           path.remove();
         } else {
-          path.parentPath.replaceWith(t.exportDefaultDeclaration(right));
+          statementPath.replaceWith(t.exportDefaultDeclaration(right));
         }
       } else {
-        path.parentPath.replaceWith(t.exportDefaultDeclaration(right));
+        statementPath.replaceWith(t.exportDefaultDeclaration(right));
       }
     }
   }
