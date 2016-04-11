@@ -15,7 +15,7 @@ To be used in command line for code mod. Not to be used during runtime.
 
 ## Packages
 
-Package | Example Input | Example output
+Transformation | Example Input | Example output
 --- | --- | ---
 [require-to-import](./packages/babel-plugin-require-to-import) | [Input](./tests/resources/require-to-import.js) | [Output](./tests/resources/require-to-import.expected.js)
 
