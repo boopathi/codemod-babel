@@ -13,14 +13,9 @@ To be used in command line for code mod. Not to be used during runtime.
 + Make necessary changes by hand
 + Review and commit
 
-### require to import
+## Packages
 
-**Package**: [require-to-import](./packages/babel-plugin-require-to-import)
-
-**Example**:
-
-+ [Input](./tests/resources/require-to-import.js)
-+ [Output](./tests/resources/require-to-import.expected.js)
+[require-to-import](./packages/babel-plugin-require-to-import) | [Input](./tests/resources/require-to-import.js) | [Output](./tests/resources/require-to-import.expected.js)
 
 ## LICENSE
 
