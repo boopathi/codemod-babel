@@ -1,3 +1,9 @@
+function getIdentifierFromLiteral(name) {
+  return name
+    .replace(/[^\w\s]/gi, '-')
+    .replace(/-([a-z])/g, g => g[1].toUpperCase());
+}
+
 export default function babelPluginRequireToImport(babel) {
   const t = babel.types;
   
@@ -8,23 +14,30 @@ export default function babelPluginRequireToImport(babel) {
       
       const value = path.node.arguments[0].value;
       
-      let variableDeclarator = path.parentPath;
-      while (!t.isVariableDeclarator(variableDeclarator.node)) {
+      if (t.isVariableDeclarator(path.parentPath.node)) {
+        const id = path.parentPath.node.id.name;
+        this.imports.push({id, value});
+        return path.parentPath.remove();
+      }
+      
+      // a CallExpression will have second ancestor as program
+      // even if declared in the highest scope
+      // Program -> body(ExpressionStatement) -> CallExpression
+      let variableDeclarator = path.parentPath.parentPath;
+      while (true) {
+        if (t.isVariableDeclarator(variableDeclarator.node)) {
+          const id = '$' + variableDeclarator.node.id.name;
+          this.imports.push({id, value});
+          return path.replaceWith(t.identifier(id));
+        }
+        if (t.isProgram(variableDeclarator.node)) {
+          // no variable declarator found
+          const id = '$' + getIdentifierFromLiteral(value);
+          this.imports.push({id, value});
+          return path.replaceWith(t.identifier(id));
+        }
         variableDeclarator = variableDeclarator.parentPath;
       }
-      
-      // subjected to change
-      let id = variableDeclarator.node.id.name;
-      
-      if (t.isVariableDeclarator(path.parentPath.node)) {
-        path.parentPath.remove();
-      } else {
-        id = '$' + id;
-        path.replaceWith(t.identifier(id));
-      }
-      
-      this.imports.push({id, value});
-
     }
   }
 

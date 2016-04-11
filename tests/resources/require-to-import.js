@@ -6,3 +6,5 @@ const e = require('e'),
       f = "someotherthing",
       g = require('g').something.somethingelse(),
       h = require('h');
+
+require('some-thing/lib/asdf');
