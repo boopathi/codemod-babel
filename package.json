@@ -7,7 +7,7 @@
     "build": "npm run clean && gulp build",
     "clean": "gulp clean",
     "watch": "npm run clean && gulp watch",
-    "test": "tape -r babel-register tests/runner.js"
+    "test": "tape -r babel-register tests/*.js"
   },
   "devDependencies": {
     "babel-core": "^6.7.6",

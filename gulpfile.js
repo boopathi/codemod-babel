@@ -21,7 +21,7 @@ gulp.task('clean', function(cb) {
 });
 
 gulp.task('build', function() {
-  return gulp.src('./packages/*/src/**/*.js')
+  return gulp.src(source)
     .pipe(through2.obj(function(file, enc, callback) {
       file._path = file.path;
       file.path = file.path.replace(srcEx, libFragment);
