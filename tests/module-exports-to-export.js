@@ -19,13 +19,20 @@ const expected =
   [ `export default (function() {})`
   , `export default (class {})`
   , `export default class A {}`
-  , {throws: 'throws'}
+  , {throws: true}
   ];
 
 test('module-exports-to-export', function(t) {
   cases.map((c, i) => {
-    const code = transform(c, babelOpts).code;
-    t.assert(compare(code, expected[i]), "Code = " + code + "Expected = " + expected[i]);
+    if (typeof expected[i] === 'string') {
+      const {code}= transform(c, babelOpts)
+      t.assert(compare(code, expected[i]), "Code = " + code + "Expected = " + expected[i]);
+    } else {
+      if (expected[i].throws) {
+        const fn = () => transform(c, babelOpts);
+        t.throws(fn);
+      }
+    }
   });
   t.end();
 });

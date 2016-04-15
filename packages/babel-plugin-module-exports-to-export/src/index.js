@@ -17,7 +17,7 @@ export default function (babel) {
           `module.exports is allowed only in the top level. Line ${path.node.right.loc.start.line}, Column ${path.node.right.loc.start.column} is not a top-level export`
         );
 
-      if (this.nModuleExports++ > 1)
+      if (this.nModuleExports++ > 0)
         throw new Error(
           `There should be only one module.exports`
         );
