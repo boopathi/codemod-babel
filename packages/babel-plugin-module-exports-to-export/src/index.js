@@ -17,14 +17,22 @@ export default function (babel) {
           `module.exports is allowed only in the top level. Line ${path.node.right.loc.start.line}, Column ${path.node.right.loc.start.column} is not a top-level export`
         );
 
+      if (this.nModuleExports++ > 1)
+        throw new Error(
+          `There should be only one module.exports`
+        );
+
       const {right} = path.node;
       if (t.isIdentifier(right)) {
-        const binding = path.scope.getBinding(right.name);
-        const targetNode = binding.path.node;
-
-        if (t.isFunctionDeclaration(targetNode) || t.isClassDeclaration(targetNode) || t.isExpression(targetNode)) {
-          binding.path.replaceWith(t.exportDefaultDeclaration(binding.path.node));
-          path.remove();
+        if (path.scope.hasBinding(right.name)) {
+          const binding = path.scope.getBinding(right.name);
+          const targetNode = binding.path.node;
+          if (t.isFunctionDeclaration(targetNode) || t.isClassDeclaration(targetNode) || t.isExpression(targetNode)) {
+            binding.path.replaceWith(t.exportDefaultDeclaration(binding.path.node));
+            path.remove();
+          } else {
+            statementPath.replaceWith(t.exportDefaultDeclaration(right));
+          }
         } else {
           statementPath.replaceWith(t.exportDefaultDeclaration(right));
         }
@@ -33,7 +41,17 @@ export default function (babel) {
       }
     }
   }
+
+  const programVisitor = {
+    Program(path) {
+      const state = {
+        nModuleExports: 0
+      };
+      path.traverse(moduleExportsVisitor, state);
+    }
+  }
+
   return {
-    visitor: moduleExportsVisitor
+    visitor: programVisitor
   };
 }
