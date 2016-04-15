@@ -3,6 +3,7 @@ const babel = require('gulp-babel');
 const through2 = require('through2');
 const watch = require('gulp-watch');
 const rimraf = require('rimraf');
+const plumber = require('gulp-plumber');
 
 // for compilation
 const source = './packages/*/src/**/*.js';
@@ -22,6 +23,7 @@ gulp.task('clean', function(cb) {
 
 gulp.task('build', function() {
   return gulp.src(source)
+    .pipe(plumber())
     .pipe(through2.obj(function(file, enc, callback) {
       file._path = file.path;
       file.path = file.path.replace(srcEx, libFragment);
