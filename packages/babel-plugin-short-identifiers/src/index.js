@@ -1,11 +1,13 @@
 export default function ({types: t}) {
 
 
-  const isNotChangable = (path) => {
-    // Globals
-    if (path.scope.hasGlobal(path.node.name)) {
-      return true;
+  const isNotChangable = (path, state) => {
+
+    //check if exisits in state
+    if (state && state.has(path.node.name)) {
+      return false;
     }
+
     // import {component}
     if (t.isImportSpecifier(path.parentPath.node)) {
       // import {Component as myComponent}
@@ -24,7 +26,15 @@ export default function ({types: t}) {
       return true;
     }
 
-    // object descructor
+    // Globals
+    if (path.scope.hasGlobal(path.node.name)) {
+      return true;
+    }
+
+    // object destructor
+    if (t.isObjectPattern(path.parentPath.parentPath.node)) {
+      return true;
+    }
 
     // object expression
 
@@ -44,7 +54,7 @@ export default function ({types: t}) {
 
   const identifierGrabVistor = {
     Identifier(path) {
-      if (isNotChangable(path)) {
+      if (isNotChangable(path, this)) {
         return;
       }
       this.add(path.node.name);
