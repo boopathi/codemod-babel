@@ -1,82 +1,50 @@
+function* atoz() {
+  yield* 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+}
+
+function* NameGenerator() {
+  let i = 0;
+  while (true) {
+    if (i) for (let j of atoz()) yield j+i;
+    else yield* atoz();
+    i++;
+  }
+}
+
 export default function ({types: t}) {
 
+  function renameIdentifiers(path) {
+    const bindings = path.scope.getAllBindings();
+    const ownBindings = Object.keys(bindings).filter(b => path.scope.hasOwnBinding(b));
 
-  const isNotChangable = (path, state) => {
+    let names = NameGenerator();
 
-    //check if exisits in state
-    if (state && state.has(path.node.name)) {
-      return false;
-    }
+    ownBindings.map(b => {
+      path.scope.rename(b, names.next().value);
+    });
 
-    // import {component}
-    if (t.isImportSpecifier(path.parentPath.node)) {
-      // import {Component as myComponent}
-      if (path.parentKey === 'local') {
-        return false;
-      }
-      return true;
-    }
-
-    // exports {component}
-    if (t.isExportSpecifier(path.parentPath.node)) {
-      // export {Component as myComponent}
-      if (path.parentKey === 'local') {
-        return false;
-      }
-      return true;
-    }
-
-    // Globals
-    if (path.scope.hasGlobal(path.node.name)) {
-      return true;
-    }
-
-    // object destructor
-    if (t.isObjectPattern(path.parentPath.parentPath.node)) {
-      return true;
-    }
-
-    // object expression
-
-    //class methods and object methods
-
-      return false;
   }
 
-  const identifierReplaceVisitor = {
-    Identifier(path) {
-      if (isNotChangable(path)) {
-        return;
-      }
-      path.node.name = this[path.node.name];
-    }
-  }
-
-  const identifierGrabVistor = {
-    Identifier(path) {
-      if (isNotChangable(path, this)) {
-        return;
-      }
-      this.add(path.node.name);
-    }
-  };
-
-  function* nameGen() {
-    yield* 'abcdefghijklmnopqrstuvwxyz'.split('');
-  }
+  /**
+   * Things that have scope / bindings for the scope
+   *
+   * Program
+   * ArrowFunctionExpression
+   * FunctionExpression
+   * FunctionDeclaration
+   * BlockStatement*
+   *
+   * We can only worry about BlockStatement and Program and ignore others
+   *
+   */
 
   return {
     visitor: {
       Program(path) {
-        let state = new Set();
-        let newState = {};
-        let it = nameGen();
-
-        path.traverse(identifierGrabVistor, state);
-        for(let item of state) {
-          newState[item] = it.next().value;
-        }
-        path.traverse(identifierReplaceVisitor, newState);
+        renameIdentifiers(path);
+      },
+      BlockStatement(path) {
+        renameIdentifiers(path);
       }
     }
   };
