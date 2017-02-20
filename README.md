@@ -1,5 +1,7 @@
 # codemod-babel
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/boopathi/codemod-babel.svg)](https://greenkeeper.io/)
+
 Some babel-plugins to transform code.
 
 Work in progress.
