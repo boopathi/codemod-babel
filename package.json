@@ -1,7 +1,7 @@
 {
   "private": true,
   "dependencies": {
-    "lerna": "^2.4.0",
+    "lerna": "^3.3.1",
     "through2": "^2.0.1"
   },
   "scripts": {
